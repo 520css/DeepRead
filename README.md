@@ -117,3 +117,5 @@ budget:
 ## License
 
 MIT
+
+（ps:前端页面整合openpaper开源项目，该项目是vibecoding的结果。）
