@@ -7,39 +7,47 @@
 ## 功能
 
 ### 论文阅读
+
 - **PDF 阅读器**：文字高亮、下划线标注、高亮点击跳转
 - **双轨解析**：PyMuPDF（快速）+ Marker（验证级，含分页结构）
 - **RAG 检索**：ChromaDB 语义搜索 + 交叉编码器重排序
 - **划词翻译**：选中文本一键翻译（DeepSeek）
 
 ### AI 对话
+
 - **ReAct 智能体**：6 个工具（read/search/compare/note/skill/run），SSE 流式输出
 - **树状对话**：编辑任意历史消息自动分叉，← → 按钮切换版本
 - **引用点击跳转**：点击 `(P.3, "引文")` 自动定位到 PDF 对应位置
 - **幻觉检测**：引用验证 + 语义相似度 + 数值交叉校验
 - **Guard 摘要栏**：每条 AI 回复底部显示可信度，支持 👍👎 反馈
 
+  ![1780570700041](image/README/1780570700041.png)
+
+  ![1780570799438](image/README/1780570799438.png)
+
 ### Agent 能力
+
 - **自我反思**：任务结束后自动分析工具调用模式，生成改进笔记
 - **Skill 系统**：支持单文件 `.md` 和目录包（SKILL.md + scripts/ + references/）
 - **多模型路由**：Claude / DeepSeek / OpenAI，自动 fallback
 - **上下文压缩**：超过 80% token 限制自动压缩
 
 ### 知识管理
+
 - **项目对话**：跨论文讨论，项目级上下文
 - **Obsidian 集成**：Agent 可直接读写 Obsidian vault 笔记
 - **对话历史**：侧边栏可折叠历史记录，支持搜索
 
 ## 技术栈
 
-| 层 | 技术 |
-|---|------|
-| 前端 | Next.js 15, React, Tailwind CSS, shadcn/ui |
-| 后端 | FastAPI, SQLite, ChromaDB |
-| PDF 解析 | PyMuPDF（快速）, Marker（验证级） |
-| 向量化 | BGE-large-en-v1.5 + BGE-reranker-v2-m3 |
-| 大模型 | Claude / DeepSeek / OpenAI，统一路由 |
-| Agent | ReAct 循环 + SSE 流式 + 自我反思 |
+| 层       | 技术                                       |
+| -------- | ------------------------------------------ |
+| 前端     | Next.js 15, React, Tailwind CSS, shadcn/ui |
+| 后端     | FastAPI, SQLite, ChromaDB                  |
+| PDF 解析 | PyMuPDF（快速）, Marker（验证级）          |
+| 向量化   | BGE-large-en-v1.5 + BGE-reranker-v2-m3     |
+| 大模型   | Claude / DeepSeek / OpenAI，统一路由       |
+| Agent    | ReAct 循环 + SSE 流式 + 自我反思           |
 
 ## 快速开始
 
