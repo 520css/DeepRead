@@ -1,0 +1,58 @@
+profile:
+  field: "自然语言处理"
+  level: "研究生"
+  language: "中文"
+  interests:
+    - "大模型幻觉检测"
+    - "RAG"
+
+llm:
+  default_provider: "deepseek"
+  default_model: "claude-sonnet-4-6"
+
+  providers:
+    claude:
+      api_key: "${CLAUDE_API_KEY}"
+      model: "claude-sonnet-4-6"
+      base_url: "https://api.anthropic.com"
+      streaming: true
+      input_price_per_1m: 3.0
+      output_price_per_1m: 15.0
+    openai:
+      api_key: "${OPENAI_API_KEY}"
+      model: "gpt-4o-mini"
+      base_url: "https://api.openai.com"
+      streaming: true
+      input_price_per_1m: 0.15
+      output_price_per_1m: 0.60
+    deepseek:
+      api_key: "${DEEPSEEK_API_KEY}"
+      model: "deepseek-chat"
+      base_url: "https://api.deepseek.com"
+      streaming: true
+      input_price_per_1m: 0.14
+      output_price_per_1m: 0.28
+
+budget:
+  monthly_limit_usd: 20.0
+  warn_threshold: 0.8
+  on_exceed: "downgrade"
+
+history:
+  max_messages: 500
+  auto_prune_days: 90
+
+preprocessing:
+  warmup_on_start: false
+  warmup_limit: 3
+  marker_timeout: 600
+
+reading:
+  default_summary_length: "medium"
+  auto_generate_notes: true
+  auto_archive_arxiv: true
+
+embedding:
+  model: "BAAI/bge-large-en-v1.5"
+  device: "cpu"
+  batch_size: 32

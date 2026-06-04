@@ -1,0 +1,158 @@
+import { Citation, ReferenceCitation } from "@/lib/schema";
+import { HTMLAttributes, ReactNode, createElement, Children } from "react";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
+import { PaperItem } from "@/lib/schema";
+
+// Interface for the CustomCitationLink component props
+interface CustomCitationLinkProps extends HTMLAttributes<HTMLElement> {
+    children?: ReactNode;
+    handleCitationClick: (key: string, messageIndex: number) => void;
+    messageIndex: number;
+    node?: {
+        tagName?: string;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        properties?: Record<string, any>;
+    };
+    className?: string;
+    citations?: (Citation | ReferenceCitation)[];
+    papers?: PaperItem[];
+    failedPages?: Set<string>;
+}
+
+interface CitationLinkProps {
+    citationKey: string;
+    messageIndex: number;
+    handleCitationClick: (key: string, messageIndex: number) => void;
+    citations?: (Citation | ReferenceCitation)[];
+    papers?: PaperItem[];
+    failedPages?: Set<string>;
+}
+
+function CitationLink({
+    citationKey,
+    messageIndex,
+    handleCitationClick,
+    citations,
+    papers,
+    failedPages,
+}: CitationLinkProps) {
+    const matchingCitation = citations?.find(citation => 'key' in citation ? String(citation.key) === citationKey : String(citation.index) === citationKey) || null;
+    const paper = matchingCitation && 'paper_id' in matchingCitation && papers ? papers.find(p => p.id === matchingCitation.paper_id) : null;
+
+    // Check if this citation's page is flagged by guard
+    const pageNum = citationKey.replace(/^P\./i, "");
+    const isFailed = failedPages?.has(pageNum) ?? false;
+
+    const onClickCitation = (e: React.MouseEvent) => {
+        e.preventDefault();
+        if (handleCitationClick) {
+            handleCitationClick(citationKey, messageIndex);
+        }
+    };
+
+    const baseClass = isFailed
+        ? "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 rounded px-1 cursor-pointer border-b border-dashed border-red-400"
+        : "bg-secondary text-secondary-foreground rounded px-1 cursor-pointer";
+
+    // If no matching citation, render without hovercard but keep click functionality
+    if (!matchingCitation) {
+        return (
+            <span className={baseClass} onClick={onClickCitation} title={isFailed ? "This page was not found in the source" : undefined}>
+                {citationKey}
+            </span>
+        );
+    }
+
+    return (
+        <HoverCard openDelay={100} closeDelay={100}>
+            <HoverCardTrigger asChild>
+                <span className={baseClass} onClick={onClickCitation} title={isFailed ? "This page was not found in the source" : undefined}>
+                    {citationKey}
+                </span>
+            </HoverCardTrigger>
+            <HoverCardContent className="w-80 p-2 pt-3 shadow-md bg-accent" sideOffset={0}>
+                {paper && <p className="text-sm font-bold text-accent-foreground">{paper.title}</p>}
+                <p className="text-sm text-accent-foreground">{'reference' in matchingCitation ? matchingCitation.reference : matchingCitation.text}</p>
+                {isFailed && (
+                    <p className="text-xs text-red-500 mt-1">⚠ This page number was not found in the source document.</p>
+                )}
+            </HoverCardContent>
+        </HoverCard>
+    );
+};
+export default function CustomCitationLink({ children, handleCitationClick, messageIndex, className, papers, ...props }: CustomCitationLinkProps) {
+    // Create a clone of props to avoid mutating the original
+    const elementProps = {
+        ...props,
+        className: `${className || ''}`
+    };
+
+    return createElement(
+        // Use the original component type from props
+        props.node?.tagName || 'span',
+        elementProps,
+        Children.map(children, (child) => {
+            // If the child is a string, process it for citations
+            if (typeof child === 'string') {
+                // Match [^1], [P.1], (P.1), (P.2-3), [P.4, P.5]
+                const citationRegex = /[\[\(](\^|P\.)(\d+(?:[a-zA-Z]*)?(?:-\d+)?(?:,\s*(?:\^|P\.)?\d+(?:[a-zA-Z]*)?(?:-\d+)?)*)[\]\)]/gi;
+
+                if (citationRegex.test(child)) {
+                    // Reset regex state
+                    citationRegex.lastIndex = 0;
+                    // Create a React element array from the string with replaced citations
+                    const parts: React.ReactNode[] = [];
+                    let lastIndex = 0;
+                    let match: RegExpExecArray | null = null;
+
+                    while ((match = citationRegex.exec(child)) !== null) {
+
+                        if (!match || match.index === undefined) {
+                            console.warn('Invalid match found in citation regex:', match);
+                            continue; // Skip invalid matches
+                        }
+
+                        // Add text before the citation
+                        if (match.index > lastIndex) {
+                            parts.push(child.substring(lastIndex, match.index));
+                        }
+
+                        // Parse multiple citations from the match
+                        const prefix = match[1].toUpperCase() === "P." ? "P." : "^";
+                        const citationsStr = match[2];
+                        const individualCitations = citationsStr.split(',').map(c => c.trim().replace(/^\^?/, ''));
+
+                        // Create a container for multiple citations
+                        parts.push(
+                            <span key={`citations-${match.index}`} className="inline-flex gap-1">
+                                {individualCitations.map((citationKey, index) => (
+                                    <CitationLink
+                                        key={`citation-${citationKey}-${index}`}
+                                        citationKey={citationKey}
+                                        messageIndex={messageIndex}
+                                        handleCitationClick={handleCitationClick}
+                                        citations={props.citations}
+                                        papers={papers}
+                                        failedPages={props.failedPages}
+                                    />
+                                ))}
+                            </span>
+                        );
+
+                        // Update lastIndex to continue after current match
+                        lastIndex = match.index + match[0].length;
+                    }
+
+                    // Add remaining text
+                    if (lastIndex < child.length) {
+                        parts.push(child.substring(lastIndex));
+                    }
+
+                    return <>{parts}</>;
+                }
+                return child;
+            }
+            return child;
+        })
+    );
+};

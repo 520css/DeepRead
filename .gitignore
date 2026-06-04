@@ -1,0 +1,70 @@
+# ── Dependencies ──
+node_modules/
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+*.egg-info/
+
+# ── Build ──
+frontend/.next/
+dist/
+build/
+
+# ── Environment ──
+.env
+.env.local
+.env.production
+
+# ── Storage (runtime data) ──
+storage/chroma_data/*
+!storage/chroma_data/.gitkeep
+storage/papers/*
+!storage/papers/.gitkeep
+storage/parsed/*
+!storage/parsed/.gitkeep
+storage/workspace/*
+!storage/workspace/.gitkeep
+storage/agent_reflections/*
+!storage/agent_reflections/.gitkeep
+storage/memory/*
+!storage/memory/.gitkeep
+storage/images/*
+!storage/images/.gitkeep
+storage/*.db
+storage/*.log
+
+# ── Models & Checkpoints ──
+*.pth
+*.bin
+*.safetensors
+checkpoints/
+model_cache/
+
+# ── IDE ──
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ── OS ──
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Logs ──
+*.log
+!backend/agent/debug.log.example
+
+# ── Temp ──
+tmp/
+temp/
+*.tmp
+
+# ── Documentation ──
+docs/
+
+# ── Tests ──
+tests/
